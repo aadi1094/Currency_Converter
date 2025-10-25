@@ -602,3 +602,5 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> with Tick
     super.dispose();
   }
 }
+
+// --- IGNORE ---
