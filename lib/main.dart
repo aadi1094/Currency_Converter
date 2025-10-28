@@ -501,6 +501,7 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> with Tick
                                 if (_result > 0) ...[
                                   SizedBox(height: 15),
                                   Container(
+                                    width: double.infinity,
                                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                                     decoration: BoxDecoration(
                                       color: Colors.green[50],
@@ -510,10 +511,13 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> with Tick
                                     child: Text(
                                       '1 $_fromCurrency = ${(_exchangeRates[_toCurrency]! / _exchangeRates[_fromCurrency]!).toStringAsFixed(4)} $_toCurrency',
                                       style: TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 12,
                                         color: Colors.green[600],
                                         fontWeight: FontWeight.w500,
                                       ),
+                                      textAlign: TextAlign.center,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2,
                                     ),
                                   ),
                                 ],
@@ -604,3 +608,4 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> with Tick
 }
 
 // --- IGNORE ---
+// testingggg
