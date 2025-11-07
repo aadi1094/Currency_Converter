@@ -51,7 +51,7 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> with Tick
     'JPY': 110.0,
     'CAD': 1.25,
     'AUD': 1.35,
-    'INR': 74.5,
+    'INR': 91.5,
     'CHF': 0.92,
     'CNY': 6.45,
     'SGD': 1.35,
@@ -302,6 +302,7 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> with Tick
                           Row(
                             children: [
                               Expanded(
+                                flex: 2,
                                 child: _buildCurrencyDropdown('From', _fromCurrency, (value) {
                                   setState(() {
                                     _fromCurrency = value!;
@@ -309,40 +310,44 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> with Tick
                                   _convertCurrency();
                                 }),
                               ),
-                              SizedBox(width: 15),
-                              AnimatedBuilder(
-                                animation: _swapAnimation,
-                                builder: (context, child) {
-                                  return Transform.rotate(
-                                    angle: _swapAnimation.value * 3.14159,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        gradient: LinearGradient(
-                                          colors: [Colors.indigo[400]!, Colors.indigo[700]!],
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.indigo.withOpacity(0.3),
-                                            blurRadius: 10,
-                                            offset: Offset(0, 5),
+                              SizedBox(width: 10),
+                              SizedBox(
+                                width: 50,
+                                child: AnimatedBuilder(
+                                  animation: _swapAnimation,
+                                  builder: (context, child) {
+                                    return Transform.rotate(
+                                      angle: _swapAnimation.value * 3.14159,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          gradient: LinearGradient(
+                                            colors: [Colors.indigo[400]!, Colors.indigo[700]!],
                                           ),
-                                        ],
-                                      ),
-                                      child: IconButton(
-                                        onPressed: _swapCurrencies,
-                                        icon: Icon(
-                                          Icons.swap_horiz,
-                                          color: Colors.white,
-                                          size: 28,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.indigo.withOpacity(0.3),
+                                              blurRadius: 10,
+                                              offset: Offset(0, 5),
+                                            ),
+                                          ],
+                                        ),
+                                        child: IconButton(
+                                          onPressed: _swapCurrencies,
+                                          icon: Icon(
+                                            Icons.swap_horiz,
+                                            color: Colors.white,
+                                            size: 24,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                                },
+                                    );
+                                  },
+                                ),
                               ),
-                              SizedBox(width: 15),
+                              SizedBox(width: 10),
                               Expanded(
+                                flex: 2,
                                 child: _buildCurrencyDropdown('To', _toCurrency, (value) {
                                   setState(() {
                                     _toCurrency = value!;
@@ -388,6 +393,7 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> with Tick
                     child: _isConverting
                         ? Row(
                             mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               SizedBox(
                                 width: 20,
@@ -410,15 +416,19 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> with Tick
                           )
                         : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.currency_exchange, color: Colors.white),
                               SizedBox(width: 10),
-                              Text(
-                                'Convert Currency',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                              Flexible(
+                                child: Text(
+                                  'Convert Currency',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -546,7 +556,7 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> with Tick
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: Colors.indigo[700],
-            fontSize: 16,
+            fontSize: 14,
           ),
         ),
         SizedBox(height: 8),
@@ -562,7 +572,8 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> with Tick
             ],
           ),
           child: DropdownButtonFormField<String>(
-            value: value,
+            initialValue: value,
+            isExpanded: true,
             decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white,
@@ -574,18 +585,22 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> with Tick
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: Colors.indigo[700]!, width: 2),
               ),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             ),
             items: _currencies.map((currency) {
               return DropdownMenuItem(
                 value: currency,
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(_currencyIcons[currency], color: Colors.indigo[600], size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      currency,
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    Icon(_currencyIcons[currency], color: Colors.indigo[600], size: 18),
+                    SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        currency,
+                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -610,4 +625,4 @@ class _CurrencyConverterPageState extends State<CurrencyConverterPage> with Tick
 // --- IGNORE ---
 // testingggg
 
-// Starting 
+// Starting
