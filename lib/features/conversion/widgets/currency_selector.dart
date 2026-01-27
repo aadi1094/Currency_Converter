@@ -20,9 +20,16 @@ class CurrencySelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropdownButtonFormField<Currency>(
       value: value,
+      isExpanded: true,
+      menuMaxHeight: 320,
+      style: Theme.of(context)
+          .textTheme
+          .bodyMedium
+          ?.copyWith(fontWeight: FontWeight.w700),
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: const Icon(Icons.public),
+        suffixIcon: const Icon(Icons.unfold_more_rounded),
       ),
       items: currencies
           .map(
