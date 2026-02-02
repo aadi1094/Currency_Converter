@@ -4,6 +4,24 @@ import '../models/currency.dart';
 import '../models/exchange_rate.dart';
 import '../services/rate_service.dart';
 
+class ConversionHistoryEntry {
+  ConversionHistoryEntry({
+    required this.amount,
+    required this.fromCode,
+    required this.toCode,
+    required this.rate,
+    required this.result,
+    required this.timestamp,
+  });
+
+  final double amount;
+  final String fromCode;
+  final String toCode;
+  final double rate;
+  final double result;
+  final DateTime timestamp;
+}
+
 class ConversionController extends ChangeNotifier {
   ConversionController({required this.rateService, required this.currencies}) {
     from = currencies.first;
@@ -20,6 +38,7 @@ class ConversionController extends ChangeNotifier {
   ExchangeRate? latestRate;
   bool isLoading = false;
   String? error;
+  final List<ConversionHistoryEntry> history = [];
 
   void setFrom(Currency? currency) {
     from = currency;
@@ -64,6 +83,16 @@ class ConversionController extends ChangeNotifier {
       final rate = await rateService.fetchRate(from: from!.code, to: to!.code);
       latestRate = rate;
       convertedValue = parsedAmount * rate.rate;
+      _addHistory(
+        ConversionHistoryEntry(
+          amount: parsedAmount,
+          fromCode: rate.from,
+          toCode: rate.to,
+          rate: rate.rate,
+          result: convertedValue!,
+          timestamp: rate.lastUpdated,
+        ),
+      );
     } catch (e) {
       error = 'Unable to fetch rate';
     } finally {
@@ -76,5 +105,12 @@ class ConversionController extends ChangeNotifier {
     convertedValue = null;
     latestRate = null;
     error = null;
+  }
+
+  void _addHistory(ConversionHistoryEntry entry) {
+    history.insert(0, entry);
+    if (history.length > 5) {
+      history.removeLast();
+    }
   }
 }

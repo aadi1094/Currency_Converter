@@ -18,6 +18,10 @@ class ConversionResultCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
+    String formatTime(DateTime time) {
+      final two = (int value) => value.toString().padLeft(2, '0');
+      return '${two(time.hour)}:${two(time.minute)}';
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -90,7 +94,7 @@ class ConversionResultCard extends StatelessWidget {
                   const Icon(Icons.info_outline, size: 18, color: Colors.black54),
                   const SizedBox(width: 6),
                   Text(
-                    '1 ${rate!.from} = ${rate!.rate.toStringAsFixed(4)} ${rate!.to}',
+                    '1 ${rate!.from} = ${rate!.rate.toStringAsFixed(4)} ${rate!.to} • Updated ${formatTime(rate!.lastUpdated)}',
                     style: textTheme.bodySmall,
                   ),
                 ],

@@ -84,6 +84,9 @@ class _ConverterPageState extends State<ConverterPage> {
                     const SizedBox(height: 18),
                     _buildConversionCard(context, colorScheme),
                     const SizedBox(height: 16),
+                    if (controller.history.isNotEmpty)
+                      _buildHistory(textTheme, colorScheme),
+                    if (controller.history.isNotEmpty) const SizedBox(height: 12),
                     if (controller.convertedValue != null)
                       ConversionResultCard(
                         amount: controller.convertedValue!,
@@ -142,6 +145,7 @@ class _ConverterPageState extends State<ConverterPage> {
                 _HeroChip(icon: Icons.offline_bolt_rounded, label: 'Offline sample rates'),
                 _HeroChip(icon: Icons.timeline_rounded, label: 'Friendly UI'),
                 _HeroChip(icon: Icons.shield_moon_rounded, label: 'No network required'),
+                _HeroChip(icon: Icons.history_edu_rounded, label: 'Track last runs'),
               ],
             ),
           ],
@@ -177,17 +181,28 @@ class _ConverterPageState extends State<ConverterPage> {
                 children: [
                   Icon(Icons.wallet_rounded, color: colorScheme.primary),
                   const SizedBox(width: 8),
-                  Text(
-                    'Set up your conversion',
-                    style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Set up your conversion',
+                        style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                      Text(
+                        'Offline sample rates • Swap anytime',
+                        style: textTheme.bodySmall?.copyWith(color: Colors.black54),
+                      ),
+                    ],
                   ),
                 ],
               ),
               const SizedBox(height: 12),
               AmountInput(
-                initialValue: controller.amountText,
+                value: controller.amountText,
                 onChanged: controller.setAmount,
               ),
+              const SizedBox(height: 10),
+              _buildQuickAmounts(textTheme, colorScheme),
               const SizedBox(height: 14),
               Row(
                 children: [
@@ -221,6 +236,8 @@ class _ConverterPageState extends State<ConverterPage> {
                 ],
               ),
               const SizedBox(height: 18),
+              _buildPairStatus(textTheme),
+              const SizedBox(height: 14),
               _buildConvertButton(colorScheme),
               if (controller.error != null) ...[
                 const SizedBox(height: 12),
@@ -272,7 +289,11 @@ class _ConverterPageState extends State<ConverterPage> {
                 ),
               )
             : const Icon(Icons.calculate_outlined),
-        label: Text(controller.isLoading ? 'Converting...' : 'Convert'),
+        label: Text(
+          controller.isLoading
+              ? 'Converting...'
+              : 'Convert ${controller.from?.code ?? ''} → ${controller.to?.code ?? ''}',
+        ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
@@ -281,6 +302,140 @@ class _ConverterPageState extends State<ConverterPage> {
         onPressed: controller.isLoading ? null : controller.convert,
       ),
     );
+  }
+
+  Widget _buildQuickAmounts(TextTheme textTheme, ColorScheme colorScheme) {
+    const presetValues = ["50", "100", "250", "500"];
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          ...presetValues.map(
+            (v) => ChoiceChip(
+              label: Text(v),
+              selected: controller.amountText == v,
+              onSelected: (_) => controller.setAmount(v),
+              selectedColor: colorScheme.primary.withOpacity(0.14),
+              labelStyle: textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: controller.amountText == v ? colorScheme.primary : Colors.black87,
+              ),
+            ),
+          ),
+          ActionChip(
+            avatar: Icon(Icons.auto_fix_high_rounded, color: colorScheme.primary),
+            label: const Text('Max'),
+            onPressed: () => controller.setAmount('1000'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPairStatus(TextTheme textTheme) {
+    final rate = controller.latestRate;
+    final fromCode = controller.from?.code ?? '—';
+    final toCode = controller.to?.code ?? '—';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.black12),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.show_chart_rounded, color: Colors.black54),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$fromCode → $toCode',
+                  style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                Text(
+                  rate == null
+                      ? 'Get a fresh sample rate'
+                      : '1 ${rate.from} ≈ ${rate.rate.toStringAsFixed(4)} ${rate.to} • ${_formatTime(rate.lastUpdated)}',
+                  style: textTheme.bodySmall?.copyWith(color: Colors.black54),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            tooltip: 'Swap currencies',
+            icon: const Icon(Icons.swap_vert_rounded),
+            onPressed: controller.swap,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHistory(TextTheme textTheme, ColorScheme colorScheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.history_toggle_off_rounded, color: colorScheme.primary),
+            const SizedBox(width: 6),
+            Text(
+              'Recent conversions',
+              style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        ...controller.history.map(
+          (entry) => Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.black12.withOpacity(0.08)),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: colorScheme.primary.withOpacity(0.12),
+                  child: Icon(Icons.currency_exchange_rounded, color: colorScheme.primary, size: 18),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${entry.amount.toStringAsFixed(2)} ${entry.fromCode} → ${entry.result.toStringAsFixed(2)} ${entry.toCode}',
+                        style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                      Text(
+                        '1 ${entry.fromCode} = ${entry.rate.toStringAsFixed(4)} ${entry.toCode} • ${_formatTime(entry.timestamp)}',
+                        style: textTheme.bodySmall?.copyWith(color: Colors.black54),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatTime(DateTime dateTime) {
+    final two = (int value) => value.toString().padLeft(2, '0');
+    return '${two(dateTime.hour)}:${two(dateTime.minute)}';
   }
 }
 
