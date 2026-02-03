@@ -148,7 +148,7 @@ class _ConverterPageState extends State<ConverterPage> {
                 _HeroChip(icon: Icons.history_edu_rounded, label: 'Track last runs'),
               ],
             ),
-          ],
+          ],//crossAxisAlignment
         ),
       ),
     );
