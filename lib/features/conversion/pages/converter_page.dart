@@ -149,6 +149,7 @@ class _ConverterPageState extends State<ConverterPage> {
               ],
             ),
           ],//crossAxisAlignment
+          //mainAxisAlignment: MainAxisAlignment.center,
         ),
       ),
     );
